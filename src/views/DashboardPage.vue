@@ -1,16 +1,19 @@
 <template>
   <section class="dashboard">
 
-    <img src="@/assets/lays.png" alt="Lays Logo" class="hero-image" />
+    <div class="hero-wrapper">
+      <img src="@/assets/lays.png" alt="Lays" class="hero-image" />
+    </div>
 
     <h1>Welcome to the Lays Configurator</h1>
+
     <p class="subtitle">
-      Create your own custom Lays bag or explore your creations.
+      Create your own custom Lays bag or explore new flavour combinations.
     </p>
 
-    <div class="actions">
-      <router-link to="/create" class="btn primary">Create New Bag</router-link>
-    </div>
+    <router-link to="/create" class="btn primary">
+      Create New Bag
+    </router-link>
 
   </section>
 </template>
@@ -20,49 +23,66 @@
 
 <style scoped>
 .dashboard {
-  max-width: 800px;
-  margin: 50px auto;
+  max-width: 900px;
+  margin: 80px auto;
   text-align: center;
   padding: 0 20px;
 }
 
+/* --- HERO WRAPPER --- */
+.hero-wrapper {
+  width: 350px;
+  height: 180px;
+  background: #ffcc00;
+  border-radius: 16px;
+  margin: 0 auto 40px auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0px 8px 18px rgba(0, 0, 0, 0.15);
+  border: 3px solid #f2b900;
+}
+
 .hero-image {
-  width: 180px;
-  margin-bottom: 25px;
+  width: 260px;
   user-select: none;
 }
 
+/* --- TITLE --- */
 h1 {
-  font-size: 32px;
-  margin-bottom: 10px;
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 12px;
 }
 
+/* --- SUBTEXT --- */
 .subtitle {
   font-size: 18px;
   color: #555;
-  margin-bottom: 40px;
+  margin-bottom: 45px;
+  line-height: 1.5;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.actions {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-}
-
-.btn {
-  padding: 14px 24px;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: 600;
-  transition: 0.25s;
-}
-
+/* --- BUTTON --- */
 .primary {
   background: #ffcc00;
+  padding: 16px 32px;
+  border-radius: 12px;
+  text-decoration: none;
   color: #333;
+  font-weight: 700;
+  font-size: 18px;
+  transition: 0.25s;
+  display: inline-block;
+  box-shadow: 0px 5px 12px rgba(0, 0, 0, 0.15);
 }
 
 .primary:hover {
-  background: #ffda2f;
+  background: #ffd633;
+  box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.22);
+  transform: translateY(-2px);
 }
 </style>
