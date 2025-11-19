@@ -29,7 +29,7 @@
   padding: 0 20px;
 }
 
-/* --- HERO WRAPPER --- */
+
 .hero-wrapper {
   width: 350px;
   height: 180px;
@@ -48,14 +48,14 @@
   user-select: none;
 }
 
-/* --- TITLE --- */
+
 h1 {
   font-size: 36px;
   font-weight: 700;
   margin-bottom: 12px;
 }
 
-/* --- SUBTEXT --- */
+
 .subtitle {
   font-size: 18px;
   color: #555;
@@ -66,7 +66,7 @@ h1 {
   margin-right: auto;
 }
 
-/* --- BUTTON --- */
+
 .primary {
   background: #ffcc00;
   padding: 16px 32px;
