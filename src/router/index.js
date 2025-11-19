@@ -5,13 +5,21 @@ import SuccessPage from '../views/SuccessPage.vue'
 import LoginPage from '../views/LoginPage.vue'
 import RegisterPage from '../views/RegisterPage.vue'
 
-
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-      {
+    {
       path: '/',
+      name: 'Login',
+      component: LoginPage
+    },
+    {
+      path: '/register',
+      name: 'Register',
+      component: RegisterPage
+    },
+    {
+      path: '/dashboard',
       name: 'Dashboard',
       component: DashboardPage
     },
@@ -24,19 +32,7 @@ const router = createRouter({
       path: '/success',
       name: 'Success',
       component: SuccessPage
-    },
-    {
-  path: '/login',
-  name: 'Login',
-  component: LoginPage
-},
-{
-  path: '/register',
-  name: 'Register',
-  component: RegisterPage
-}
-
-
+    }
   ],
 })
 
