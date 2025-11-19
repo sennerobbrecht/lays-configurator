@@ -1,14 +1,19 @@
 import { createRouter, createWebHistory } from 'vue-router'
-
+import DashboardPage from '../views/DashboardPage.vue'
 import CreateBagPage from '../views/CreateBagPage.vue'
 import SuccessPage from '../views/SuccessPage.vue'
-import DashboardPage from '../views/DashboardPage.vue'
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    {
+      {
       path: '/',
+      name: 'Dashboard',
+      component: DashboardPage
+    },
+    {
+      path: '/create',
       name: 'CreateBag',
       component: CreateBagPage
     },
@@ -16,12 +21,8 @@ const router = createRouter({
       path: '/success',
       name: 'Success',
       component: SuccessPage
-    },
-    {
-      path: '/dashboard',
-      name: 'Dashboard',
-      component: DashboardPage
     }
+
   ],
 })
 
