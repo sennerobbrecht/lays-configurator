@@ -38,7 +38,7 @@ const loginUser = async () => {
     localStorage.setItem('userEmail', email.value)
 
     alert('Logged in!')
-  } catch (error) {
+  } catch {
     alert('Login failed')
   }
 }

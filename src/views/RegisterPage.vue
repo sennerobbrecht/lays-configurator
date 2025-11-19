@@ -37,7 +37,7 @@ const registerUser = async () => {
     })
 
     alert('Account created!')
-  } catch (error) {
+  } catch  {
     alert('Failed to register')
   }
 }
