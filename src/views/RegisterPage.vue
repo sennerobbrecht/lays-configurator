@@ -13,7 +13,7 @@
 
     <p class="link">
       Already have an account?
-      <router-link to="/login">Login</router-link>
+      <router-link to="/">Login</router-link>
     </p>
   </div>
 </template>
