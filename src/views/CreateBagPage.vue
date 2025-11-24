@@ -1,7 +1,8 @@
 <template>
   <div class="layout">
     <div class="preview">
-      <BagPreview :color="bagColor" />
+      <BagPreview :color="bagColor" :name="bagName" />
+
     </div>
 
     <div class="config">
@@ -13,8 +14,13 @@
       </div>
 
       <div class="divider"></div>
+      <div class="form-group">
+  <label>Print Name on Bag</label>
+  <input class="text-input" type="text" v-model="bagName" placeholder="Type your name..." />
+</div>
 
-      <button class="next-button">Next Step</button>
+
+
     </div>
   </div>
 </template>
@@ -25,6 +31,8 @@ import { ref } from "vue"
 import BagPreview from "../components/BagPreview.vue"
 
 const bagColor = ref("#ffffff")
+const bagName = ref("")
+
 </script>
 
 <style scoped>
@@ -82,19 +90,16 @@ label {
   margin: 10px 0;
 }
 
-.next-button {
-  width: 160px;
-  padding: 12px;
-  border: none;
-  background: #ffcc00;
+.text-input {
+  padding: 10px 12px;
   font-size: 16px;
-  font-weight: 700;
+  border: 2px solid #ccc;
   border-radius: 8px;
-  cursor: pointer;
-  transition: 0.2s;
+  outline: none;
+  width: 250px;
+}
+.text-input:focus {
+  border-color: #ffcc00;
 }
 
-.next-button:hover {
-  background: #f2c200;
-}
 </style>

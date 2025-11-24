@@ -10,11 +10,29 @@ import * as THREE from "three"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
 
 const props = defineProps({
-  color: { type: String, default: "#ffffff" }
+  color: { type: String, default: "#ffffff" },
+  name: { type: String, default: "" }
 })
 
 const canvas3d = ref(null)
 let model = null
+
+function createTextTexture(text) {
+  const canvas = document.createElement("canvas")
+  canvas.width = 1024
+  canvas.height = 512
+  const ctx = canvas.getContext("2d")
+  ctx.fillStyle = "white"
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+  ctx.fillStyle = "black"
+  ctx.font = "bold 140px Arial"
+  ctx.textAlign = "center"
+  ctx.textBaseline = "middle"
+  ctx.fillText(text, canvas.width / 2, canvas.height / 2)
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.needsUpdate = true
+  return texture
+}
 
 onMounted(() => {
   const canvas = canvas3d.value
@@ -48,13 +66,13 @@ onMounted(() => {
     const box = new THREE.Box3().setFromObject(model)
     const center = box.getCenter(new THREE.Vector3())
     model.position.sub(center)
-
     model.scale.set(0.8, 0.8, 0.8)
 
     model.traverse((child) => {
       if (child.isMesh) {
         child.material = new THREE.MeshStandardMaterial({
           color: props.color,
+          map: createTextTexture(props.name),
           roughness: 0.4,
           metalness: 0
         })
@@ -106,6 +124,20 @@ watch(
       model.traverse((child) => {
         if (child.isMesh && child.material) {
           child.material.color.set(value)
+        }
+      })
+    }
+  }
+)
+
+watch(
+  () => props.name,
+  (value) => {
+    if (model) {
+      model.traverse((child) => {
+        if (child.isMesh && child.material) {
+          child.material.map = createTextTexture(value)
+          child.material.needsUpdate = true
         }
       })
     }
