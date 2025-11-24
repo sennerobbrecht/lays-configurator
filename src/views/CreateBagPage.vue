@@ -11,6 +11,8 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 const canvas3d = ref(null);
+let model = null;
+
 
 onMounted(() => {
   const canvas = canvas3d.value;
@@ -45,7 +47,8 @@ onMounted(() => {
   loader.load(
     "/models/punga_chips_export.glb",
     (gltf) => {
-    const model = gltf.scene;
+   model = gltf.scene;
+
 
 
 const box = new THREE.Box3().setFromObject(model);
@@ -60,6 +63,37 @@ model.position.z += (model.position.z - center.z);
 model.scale.set(0.8, 0.8, 0.8);
 
 scene.add(model);
+let isDragging = false;
+let previousMousePosition = { x: 0, y: 0 };
+
+canvas.addEventListener("mousedown", (e) => {
+  isDragging = true;
+  previousMousePosition = { x: e.clientX, y: e.clientY };
+});
+
+canvas.addEventListener("mouseup", () => {
+  isDragging = false;
+});
+
+canvas.addEventListener("mouseleave", () => {
+  isDragging = false;
+});
+
+canvas.addEventListener("mousemove", (e) => {
+  if (isDragging && model) {
+    const deltaX = e.clientX - previousMousePosition.x;
+    const deltaY = e.clientY - previousMousePosition.y;
+
+
+    model.rotation.y += deltaX * 0.01;
+
+
+    model.rotation.x += deltaY * 0.01;
+
+    previousMousePosition = { x: e.clientX, y: e.clientY };
+  }
+});
+
 model.traverse((child) => {
   if (child.isMesh) {
     child.material = new THREE.MeshStandardMaterial({
