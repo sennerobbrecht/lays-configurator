@@ -1,8 +1,18 @@
 <template>
-  <div class="viewer-wrapper">
+ <div class="layout">
 
+  <div class="viewer-wrapper">
     <canvas ref="canvas3d" class="three-canvas"></canvas>
   </div>
+
+  <div class="config-panel">
+    <h2>Configure Your Bag</h2>
+
+
+    <p>Select options here…</p>
+  </div>
+</div>
+
 </template>
 
 <script setup>
@@ -22,17 +32,23 @@ onMounted(() => {
   scene.background = new THREE.Color(0xf0f0f0);
 
 
-  const camera = new THREE.PerspectiveCamera(
-    75,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
-  );
-  camera.position.set(0, 1, 30);
+const viewer = document.querySelector(".viewer-wrapper");
+
+const camera = new THREE.PerspectiveCamera(
+  75,
+  viewer.clientWidth / viewer.clientHeight,
+  0.1,
+  1000
+);
+
+  camera.position.set(0, 0, 40);
+camera.lookAt(0, 0, 0);
+
 
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-  renderer.setSize(window.innerWidth, window.innerHeight * 0.9);
+  renderer.setSize(viewer.clientWidth, viewer.clientHeight);
+
 
 
   const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
@@ -120,9 +136,10 @@ model.traverse((child) => {
 
 
   window.addEventListener("resize", () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight * 0.9);
+   camera.aspect = viewer.clientWidth / viewer.clientHeight;
+renderer.setSize(viewer.clientWidth, viewer.clientHeight);
+camera.updateProjectionMatrix();
+
   });
 });
 </script>
@@ -141,4 +158,35 @@ model.traverse((child) => {
   height: 100%;
   display: block;
 }
+
+.layout {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+}
+
+.viewer-wrapper {
+  width: 50%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f0f0f0;
+}
+
+.config-panel {
+  width: 50%;
+  height: 100%;
+  padding: 30px;
+  background: #ffffff;
+  overflow-y: auto;
+  box-shadow: -2px 0 8px rgba(0,0,0,0.05);
+}
+
+.three-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
 </style>
