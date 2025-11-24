@@ -52,8 +52,8 @@ const registerUser = async () => {
 
     alert("Account created successfully! 🎉");
 
-    // Redirect to login page
-    router.push("/login");
+
+    router.push("/");
   } catch (error) {
     console.error("REGISTER ERROR:", error.response || error);
 
