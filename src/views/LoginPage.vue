@@ -19,14 +19,18 @@
 <script setup>
 import { ref } from 'vue'
 import axios from 'axios'
+import { useRouter } from 'vue-router'
+
 
 const email = ref('')
 const password = ref('')
+const router = useRouter()
+
 
 const loginUser = async () => {
   try {
     const res = await axios.post(
-      'https://lays-api-1.onrender.com/api/v1/user/auth',
+      'https://lays-api-1.onrender.com/api/v1/user/login',
       {
         email: email.value,
         password: password.value
@@ -38,6 +42,8 @@ const loginUser = async () => {
     localStorage.setItem('userEmail', email.value)
 
     alert('Logged in!')
+router.push('/dashboard')
+
   } catch {
     alert('Login failed')
   }
