@@ -47,19 +47,29 @@ onMounted(() => {
     (gltf) => {
     const model = gltf.scene;
 
-// Afmetingen berekenen
+
 const box = new THREE.Box3().setFromObject(model);
 const center = box.getCenter(new THREE.Vector3());
 
-// Model centreren op (0,0,0)
+
 model.position.x += (model.position.x - center.x);
 model.position.y += (model.position.y - center.y);
 model.position.z += (model.position.z - center.z);
 
-// Schaal
+
 model.scale.set(0.8, 0.8, 0.8);
 
 scene.add(model);
+model.traverse((child) => {
+  if (child.isMesh) {
+    child.material = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      roughness: 0.4,
+      metalness: 0.0
+    });
+  }
+});
+
 
     },
     undefined,
