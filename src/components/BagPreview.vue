@@ -5,9 +5,13 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue"
+import { onMounted, ref, watch } from "vue"
 import * as THREE from "three"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
+
+const props = defineProps({
+  color: { type: String, default: "#ffffff" }
+})
 
 const canvas3d = ref(null)
 let model = null
@@ -50,7 +54,7 @@ onMounted(() => {
     model.traverse((child) => {
       if (child.isMesh) {
         child.material = new THREE.MeshStandardMaterial({
-          color: 0xffffff,
+          color: props.color,
           roughness: 0.4,
           metalness: 0
         })
@@ -60,20 +64,20 @@ onMounted(() => {
     scene.add(model)
   })
 
-  let down = false
+  let dragging = false
   let prev = { x: 0, y: 0 }
 
   canvas.addEventListener("mousedown", (e) => {
-    down = true
+    dragging = true
     prev = { x: e.clientX, y: e.clientY }
   })
 
   canvas.addEventListener("mouseup", () => {
-    down = false
+    dragging = false
   })
 
   canvas.addEventListener("mousemove", (e) => {
-    if (down && model) {
+    if (dragging && model) {
       const dx = e.clientX - prev.x
       const dy = e.clientY - prev.y
       model.rotation.y += dx * 0.01
@@ -94,15 +98,25 @@ onMounted(() => {
     renderer.setSize(viewer.clientWidth, viewer.clientHeight)
   })
 })
+
+watch(
+  () => props.color,
+  (value) => {
+    if (model) {
+      model.traverse((child) => {
+        if (child.isMesh && child.material) {
+          child.material.color.set(value)
+        }
+      })
+    }
+  }
+)
 </script>
 
 <style scoped>
 .viewer-wrapper {
   width: 100%;
   height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .three-canvas {
