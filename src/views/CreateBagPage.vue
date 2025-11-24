@@ -26,7 +26,7 @@ onMounted(() => {
     0.1,
     1000
   );
-  camera.position.set(0, 1, 3);
+  camera.position.set(0, 1, 30);
 
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -45,9 +45,22 @@ onMounted(() => {
   loader.load(
     "/models/punga_chips_export.glb",
     (gltf) => {
-      const model = gltf.scene;
-      model.scale.set(1.5, 1.5, 1.5);
-      scene.add(model);
+    const model = gltf.scene;
+
+// Afmetingen berekenen
+const box = new THREE.Box3().setFromObject(model);
+const center = box.getCenter(new THREE.Vector3());
+
+// Model centreren op (0,0,0)
+model.position.x += (model.position.x - center.x);
+model.position.y += (model.position.y - center.y);
+model.position.z += (model.position.z - center.z);
+
+// Schaal
+model.scale.set(0.8, 0.8, 0.8);
+
+scene.add(model);
+
     },
     undefined,
     (error) => {
