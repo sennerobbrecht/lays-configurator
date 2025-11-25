@@ -31,6 +31,9 @@ function createTextTexture(text) {
   ctx.fillText(text, canvas.width / 2, canvas.height / 2)
   const texture = new THREE.CanvasTexture(canvas)
   texture.needsUpdate = true
+  texture.flipY = false
+  texture.wrapS = THREE.ClampToEdgeWrapping
+  texture.wrapT = THREE.ClampToEdgeWrapping
   return texture
 }
 
