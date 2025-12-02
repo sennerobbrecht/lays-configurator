@@ -8,6 +8,7 @@
 import { onMounted, ref, watch } from "vue"
 import * as THREE from "three"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
+import logoSrc from "@/assets/lays_logo.png"
 
 const props = defineProps({
   color: { type: String, default: "#ffffff" },
@@ -16,30 +17,48 @@ const props = defineProps({
 
 const canvas3d = ref(null)
 let model = null
+let laysLogo = null
 
-function createTextTexture(text) {
+function loadImage(src) {
+  return new Promise((resolve) => {
+    const img = new Image()
+    img.src = src
+    img.onload = () => resolve(img)
+  })
+}
+
+async function createCustomTexture(text, color) {
   const canvas = document.createElement("canvas")
   canvas.width = 1024
-  canvas.height = 512
+  canvas.height = 1024
   const ctx = canvas.getContext("2d")
-  ctx.fillStyle = "white"
+
+  ctx.fillStyle = color
   ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+  const logoWidth = canvas.width * 0.45
+  const logoHeight = (laysLogo.height / laysLogo.width) * logoWidth
+  const logoX = canvas.width / 2 - logoWidth / 2
+  const logoY = canvas.height * 0.18
+  ctx.drawImage(laysLogo, logoX, logoY, logoWidth, logoHeight)
+
   ctx.fillStyle = "black"
-  ctx.font = "bold 140px Arial"
+  ctx.font = `bold ${canvas.height * 0.10}px Arial`
   ctx.textAlign = "center"
   ctx.textBaseline = "middle"
-  ctx.fillText(text, canvas.width / 2, canvas.height / 2)
+  ctx.fillText(text, canvas.width / 2, canvas.height * 0.72)
+
   const texture = new THREE.CanvasTexture(canvas)
-  texture.needsUpdate = true
   texture.flipY = false
-  texture.wrapS = THREE.ClampToEdgeWrapping
-  texture.wrapT = THREE.ClampToEdgeWrapping
+  texture.needsUpdate = true
   return texture
 }
 
-onMounted(() => {
+onMounted(async () => {
   const canvas = canvas3d.value
   const viewer = document.querySelector(".viewer-wrapper")
+
+  laysLogo = await loadImage(logoSrc)
 
   const scene = new THREE.Scene()
   scene.background = new THREE.Color(0xf0f0f0)
@@ -55,15 +74,13 @@ onMounted(() => {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true })
   renderer.setSize(viewer.clientWidth, viewer.clientHeight)
 
-  const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 1)
-  scene.add(hemi)
-
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1))
   const dir = new THREE.DirectionalLight(0xffffff, 1)
   dir.position.set(5, 10, 7)
   scene.add(dir)
 
   const loader = new GLTFLoader()
-  loader.load("/models/punga_chips_export.glb", (gltf) => {
+  loader.load("/models/punga_chips_export.glb", async (gltf) => {
     model = gltf.scene
 
     const box = new THREE.Box3().setFromObject(model)
@@ -71,11 +88,12 @@ onMounted(() => {
     model.position.sub(center)
     model.scale.set(0.8, 0.8, 0.8)
 
+    const texture = await createCustomTexture(props.name, props.color)
+
     model.traverse((child) => {
       if (child.isMesh) {
         child.material = new THREE.MeshStandardMaterial({
-          color: props.color,
-          map: createTextTexture(props.name),
+          map: texture,
           roughness: 0.4,
           metalness: 0
         })
@@ -88,21 +106,17 @@ onMounted(() => {
   let dragging = false
   let prev = { x: 0, y: 0 }
 
-  canvas.addEventListener("mousedown", (e) => {
+  canvas.addEventListener("mousedown", e => {
     dragging = true
     prev = { x: e.clientX, y: e.clientY }
   })
 
-  canvas.addEventListener("mouseup", () => {
-    dragging = false
-  })
+  canvas.addEventListener("mouseup", () => dragging = false)
 
-  canvas.addEventListener("mousemove", (e) => {
+  canvas.addEventListener("mousemove", e => {
     if (dragging && model) {
-      const dx = e.clientX - prev.x
-      const dy = e.clientY - prev.y
-      model.rotation.y += dx * 0.01
-      model.rotation.x += dy * 0.01
+      model.rotation.y += (e.clientX - prev.x) * 0.01
+      model.rotation.x += (e.clientY - prev.y) * 0.01
       prev = { x: e.clientX, y: e.clientY }
     }
   })
@@ -120,32 +134,29 @@ onMounted(() => {
   })
 })
 
-watch(
-  () => props.color,
-  (value) => {
-    if (model) {
-      model.traverse((child) => {
-        if (child.isMesh && child.material) {
-          child.material.color.set(value)
-        }
-      })
-    }
+watch(() => props.color, async (value) => {
+  if (model && laysLogo) {
+    const tex = await createCustomTexture(props.name, value)
+    model.traverse((child) => {
+      if (child.isMesh) {
+        child.material.map = tex
+        child.material.needsUpdate = true
+      }
+    })
   }
-)
+})
 
-watch(
-  () => props.name,
-  (value) => {
-    if (model) {
-      model.traverse((child) => {
-        if (child.isMesh && child.material) {
-          child.material.map = createTextTexture(value)
-          child.material.needsUpdate = true
-        }
-      })
-    }
+watch(() => props.name, async (value) => {
+  if (model && laysLogo) {
+    const tex = await createCustomTexture(value, props.color)
+    model.traverse((child) => {
+      if (child.isMesh) {
+        child.material.map = tex
+        child.material.needsUpdate = true
+      }
+    })
   }
-)
+})
 </script>
 
 <style scoped>
@@ -153,7 +164,6 @@ watch(
   width: 100%;
   height: 100%;
 }
-
 .three-canvas {
   width: 100%;
   height: 100%;
