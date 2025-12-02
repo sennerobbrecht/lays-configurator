@@ -69,14 +69,14 @@ async function createCustomTexture(text, color) {
   const logoWidth = canvas.width * 0.45
   const logoHeight = (laysLogo.height / laysLogo.width) * logoWidth
   const logoX = canvas.width / 2 - logoWidth / 2
-  const logoY = canvas.height * 0.18
+  const logoY = canvas.height * 0.10
   ctx.drawImage(logoCanvas, logoX, logoY, logoWidth, logoHeight)
 
   ctx.fillStyle = "black"
-  ctx.font = `bold ${canvas.height * 0.10}px Arial`
+  ctx.font = `bold ${canvas.height * 0.055}px Arial`
   ctx.textAlign = "center"
   ctx.textBaseline = "middle"
-  ctx.fillText(text, canvas.width / 2, canvas.height * 0.72)
+  ctx.fillText(text, canvas.width / 2, canvas.height * 0.45)
 
   const texture = new THREE.CanvasTexture(canvas)
   texture.flipY = false
