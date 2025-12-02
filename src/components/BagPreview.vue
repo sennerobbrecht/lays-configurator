@@ -12,7 +12,8 @@ import logoSrc from "@/assets/lays_logo_transparent.png"
 
 const props = defineProps({
   color: { type: String, default: "#ffffff" },
-  name: { type: String, default: "" }
+  name: { type: String, default: "" },
+  flavour: { type: String, default: "" }
 })
 
 const canvas3d = ref(null)
@@ -20,7 +21,8 @@ let model = null
 let laysLogo = null
 
 function loadImage(src) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
+    if (!src) return resolve(null)
     const img = new Image()
     img.src = src
     img.onload = () => resolve(img)
@@ -36,7 +38,7 @@ function hexToRgb(hex) {
   }
 }
 
-async function createCustomTexture(text, color) {
+async function createCustomTexture(text, color, flavourImg) {
   const canvas = document.createElement("canvas")
   canvas.width = 1024
   canvas.height = 1024
@@ -69,7 +71,7 @@ async function createCustomTexture(text, color) {
   const logoWidth = canvas.width * 0.45
   const logoHeight = (laysLogo.height / laysLogo.width) * logoWidth
   const logoX = canvas.width / 2 - logoWidth / 2
-  const logoY = canvas.height * 0.10
+  const logoY = canvas.height * 0.08
   ctx.drawImage(logoCanvas, logoX, logoY, logoWidth, logoHeight)
 
   ctx.fillStyle = "black"
@@ -77,6 +79,14 @@ async function createCustomTexture(text, color) {
   ctx.textAlign = "center"
   ctx.textBaseline = "middle"
   ctx.fillText(text, canvas.width / 2, canvas.height * 0.45)
+
+  if (flavourImg) {
+    const flavourWidth = canvas.width * 0.40
+    const flavourHeight = (flavourImg.height / flavourImg.width) * flavourWidth
+    const fx = canvas.width / 2 - flavourWidth / 2
+    const fy = canvas.height * 0.55
+    ctx.drawImage(flavourImg, fx, fy, flavourWidth, flavourHeight)
+  }
 
   const texture = new THREE.CanvasTexture(canvas)
   texture.flipY = false
@@ -89,6 +99,7 @@ onMounted(async () => {
   const viewer = document.querySelector(".viewer-wrapper")
 
   laysLogo = await loadImage(logoSrc)
+  let flavourImg = props.flavour ? await loadImage(props.flavour) : null
 
   const scene = new THREE.Scene()
   scene.background = new THREE.Color(0xf0f0f0)
@@ -110,7 +121,7 @@ onMounted(async () => {
   scene.add(dir)
 
   const loader = new GLTFLoader()
-  loader.load("/models/punga_chips_export.glb", async (gltf) => {
+  loader.load("/models/punga_chips_export.glb", async gltf => {
     model = gltf.scene
 
     const box = new THREE.Box3().setFromObject(model)
@@ -118,9 +129,9 @@ onMounted(async () => {
     model.position.sub(center)
     model.scale.set(0.8, 0.8, 0.8)
 
-    const texture = await createCustomTexture(props.name, props.color)
+    const texture = await createCustomTexture(props.name, props.color, flavourImg)
 
-    model.traverse((child) => {
+    model.traverse(child => {
       if (child.isMesh) {
         child.material = new THREE.MeshStandardMaterial({
           map: texture,
@@ -155,6 +166,7 @@ onMounted(async () => {
     requestAnimationFrame(render)
     renderer.render(scene, camera)
   }
+
   render()
 
   window.addEventListener("resize", () => {
@@ -164,10 +176,11 @@ onMounted(async () => {
   })
 })
 
-watch(() => props.color, async (value) => {
+watch(() => props.color, async value => {
   if (model && laysLogo) {
-    const tex = await createCustomTexture(props.name, value)
-    model.traverse((child) => {
+    const flavourImg = props.flavour ? await loadImage(props.flavour) : null
+    const tex = await createCustomTexture(props.name, value, flavourImg)
+    model.traverse(child => {
       if (child.isMesh) {
         child.material.map = tex
         child.material.needsUpdate = true
@@ -176,10 +189,24 @@ watch(() => props.color, async (value) => {
   }
 })
 
-watch(() => props.name, async (value) => {
+watch(() => props.name, async value => {
   if (model && laysLogo) {
-    const tex = await createCustomTexture(value, props.color)
-    model.traverse((child) => {
+    const flavourImg = props.flavour ? await loadImage(props.flavour) : null
+    const tex = await createCustomTexture(value, props.color, flavourImg)
+    model.traverse(child => {
+      if (child.isMesh) {
+        child.material.map = tex
+        child.material.needsUpdate = true
+      }
+    })
+  }
+})
+
+watch(() => props.flavour, async value => {
+  if (model && laysLogo) {
+    const flavourImg = value ? await loadImage(value) : null
+    const tex = await createCustomTexture(props.name, props.color, flavourImg)
+    model.traverse(child => {
       if (child.isMesh) {
         child.material.map = tex
         child.material.needsUpdate = true

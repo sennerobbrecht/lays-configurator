@@ -1,8 +1,11 @@
 <template>
   <div class="layout">
     <div class="preview">
-      <BagPreview :color="bagColor" :name="bagName" />
-
+      <BagPreview
+        :color="bagColor"
+        :name="bagName"
+        :flavour="bagFlavour"
+      />
     </div>
 
     <div class="config">
@@ -14,17 +17,21 @@
       </div>
 
       <div class="divider"></div>
+
       <div class="form-group">
-  <label>Print Name on Bag</label>
-  <input class="text-input" type="text" v-model="bagName" placeholder="Type your name..." />
-</div>
+        <label>Print Name on Bag</label>
+        <input class="text-input" type="text" v-model="bagName" placeholder="Type your name..." />
+      </div>
 
+      <div class="divider"></div>
 
-
+      <div class="form-group">
+        <label>Select Flavour Image</label>
+        <input type="file" accept="image/*" @change="onFlavourUpload" />
+      </div>
     </div>
   </div>
 </template>
-
 
 <script setup>
 import { ref } from "vue"
@@ -32,7 +39,18 @@ import BagPreview from "../components/BagPreview.vue"
 
 const bagColor = ref("#ffffff")
 const bagName = ref("")
+const bagFlavour = ref("")
 
+function onFlavourUpload(e) {
+  const file = e.target.files[0]
+  if (!file) return
+
+  const reader = new FileReader()
+  reader.onload = () => {
+    bagFlavour.value = reader.result
+  }
+  reader.readAsDataURL(file)
+}
 </script>
 
 <style scoped>
@@ -101,5 +119,4 @@ label {
 .text-input:focus {
   border-color: #ffcc00;
 }
-
 </style>
