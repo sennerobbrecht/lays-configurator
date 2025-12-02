@@ -8,7 +8,7 @@
 import { onMounted, ref, watch } from "vue"
 import * as THREE from "three"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
-import logoSrc from "@/assets/lays_logo.png"
+import logoSrc from "@/assets/lays_logo_transparent.png"
 
 const props = defineProps({
   color: { type: String, default: "#ffffff" },
@@ -27,6 +27,15 @@ function loadImage(src) {
   })
 }
 
+function hexToRgb(hex) {
+  const h = hex.replace("#", "")
+  return {
+    r: parseInt(h.substring(0, 2), 16),
+    g: parseInt(h.substring(2, 4), 16),
+    b: parseInt(h.substring(4, 6), 16)
+  }
+}
+
 async function createCustomTexture(text, color) {
   const canvas = document.createElement("canvas")
   canvas.width = 1024
@@ -36,11 +45,32 @@ async function createCustomTexture(text, color) {
   ctx.fillStyle = color
   ctx.fillRect(0, 0, canvas.width, canvas.height)
 
+  const logoCanvas = document.createElement("canvas")
+  logoCanvas.width = laysLogo.width
+  logoCanvas.height = laysLogo.height
+  const lctx = logoCanvas.getContext("2d")
+  lctx.drawImage(laysLogo, 0, 0)
+
+  const imgData = lctx.getImageData(0, 0, logoCanvas.width, logoCanvas.height)
+  const data = imgData.data
+  const rgb = hexToRgb(color)
+
+  for (let i = 0; i < data.length; i += 4) {
+    if (data[i + 3] < 20) {
+      data[i] = rgb.r
+      data[i + 1] = rgb.g
+      data[i + 2] = rgb.b
+      data[i + 3] = 255
+    }
+  }
+
+  lctx.putImageData(imgData, 0, 0)
+
   const logoWidth = canvas.width * 0.45
   const logoHeight = (laysLogo.height / laysLogo.width) * logoWidth
   const logoX = canvas.width / 2 - logoWidth / 2
   const logoY = canvas.height * 0.18
-  ctx.drawImage(laysLogo, logoX, logoY, logoWidth, logoHeight)
+  ctx.drawImage(logoCanvas, logoX, logoY, logoWidth, logoHeight)
 
   ctx.fillStyle = "black"
   ctx.font = `bold ${canvas.height * 0.10}px Arial`
