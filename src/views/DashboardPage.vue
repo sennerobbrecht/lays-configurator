@@ -15,10 +15,28 @@
       Create New Bag
     </router-link>
 
+    <!-- Simple Logout Button -->
+    <button class="logout" @click="logout">
+      Logout
+    </button>
+
   </section>
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+// Redirect als niet ingelogd
+if (!localStorage.getItem('token')) {
+  router.push('/login')
+}
+
+const logout = () => {
+  localStorage.clear()
+  router.push('/login')
+}
 </script>
 
 <style scoped>
@@ -29,7 +47,6 @@
   padding: 0 20px;
 }
 
-
 .hero-wrapper {
   width: 350px;
   height: 180px;
@@ -39,7 +56,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow: 0px 8px 18px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
   border: 3px solid #f2b900;
 }
 
@@ -47,25 +64,6 @@
   width: 260px;
   user-select: none;
 }
-
-
-h1 {
-  font-size: 36px;
-  font-weight: 700;
-  margin-bottom: 12px;
-}
-
-
-.subtitle {
-  font-size: 18px;
-  color: #555;
-  margin-bottom: 45px;
-  line-height: 1.5;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
 
 .primary {
   background: #ffcc00;
@@ -77,12 +75,29 @@ h1 {
   font-size: 18px;
   transition: 0.25s;
   display: inline-block;
-  box-shadow: 0px 5px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
 }
 
 .primary:hover {
   background: #ffd633;
-  box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.22);
+  transform: translateY(-2px);
+}
+
+.logout {
+  margin-top: 25px;
+  background: #e74c3c;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.logout:hover {
+  background: #ff5e4d;
   transform: translateY(-2px);
 }
 </style>
