@@ -3,13 +3,18 @@
 
     <h1>Vote For Your Favorite Lays Bag</h1>
 
-    <div v-if="bags.length === 0" class="empty">Loading bags...</div>
-
     <div class="bag-grid">
       <div v-for="bag in bags" :key="bag._id" class="bag-card">
 
-        <div class="image-wrapper">
-          <img v-if="bag.image" :src="bag.image" class="bag-img" />
+        <div class="preview-wrapper">
+          <BagPreview
+            :color="bag.bagColor"
+            :name="bag.name"
+            :flavour="bag.image"
+            :font="bag.font"
+            :packaging="bag.packaging"
+            :pattern="bag.pattern"
+          />
         </div>
 
         <h2>{{ bag.name }}</h2>
@@ -32,6 +37,7 @@
 <script setup>
 import { ref, onMounted } from "vue"
 import axios from "axios"
+import BagPreview from "../components/BagPreview.vue"
 
 const bags = ref([])
 const votes = ref({})
@@ -92,7 +98,7 @@ onMounted(loadBags)
 
 <style scoped>
 .vote-container {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 40px auto;
   text-align: center;
   padding: 20px;
@@ -100,8 +106,8 @@ onMounted(loadBags)
 
 .bag-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 32px;
   margin-top: 30px;
 }
 
@@ -110,23 +116,17 @@ onMounted(loadBags)
   border-radius: 14px;
   padding: 18px;
   box-shadow: 0px 8px 22px rgba(0,0,0,0.12);
+  overflow: hidden;
 }
 
-.image-wrapper {
+.preview-wrapper {
   width: 100%;
-  height: 260px;
+  height: 380px;
   background: #f4f4f4;
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-}
-
-.bag-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 .vote-btn {
@@ -141,22 +141,18 @@ onMounted(loadBags)
   transition: 0.2s;
 }
 
-.vote-btn:hover {
-  background: #ffd633;
-}
-
 .vote-btn.remove {
-  background: #ff5c5c;
+  background: #ff4d4d;
   color: white;
 }
 
-.vote-btn.remove:hover {
-  background: #ff1f1f;
+h2 {
+  margin-top: 12px;
 }
 
 .user {
   color: #666;
   font-size: 14px;
-  margin-top: 5px;
+  margin-top: -5px;
 }
 </style>
