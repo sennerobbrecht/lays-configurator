@@ -6,6 +6,7 @@
         :name="bagName"
         :flavour="bagFlavour"
         :font="bagFont"
+        :packaging="bagPackaging"
       />
     </div>
 
@@ -21,7 +22,7 @@
 
       <div class="form-group">
         <label>Print Name on Bag</label>
-        <input class="text-input" type="text" v-model="bagName" placeholder="Type your name..." />
+        <input class="text-input" type="text" v-model="bagName" />
       </div>
 
       <div class="divider"></div>
@@ -34,6 +35,17 @@
           <option value="Georgia">Georgia</option>
           <option value="Courier New">Courier New</option>
           <option value="Impact">Impact</option>
+        </select>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="form-group">
+        <label>Select Packaging Type</label>
+        <select v-model="bagPackaging" class="font-select">
+          <option value="normal">Normal</option>
+          <option value="matte">Matte</option>
+          <option value="glossy">Glossy</option>
         </select>
       </div>
 
@@ -55,6 +67,7 @@ const bagColor = ref("#ffffff")
 const bagName = ref("")
 const bagFlavour = ref("")
 const bagFont = ref("Arial")
+const bagPackaging = ref("normal")
 
 function onFlavourUpload(e) {
   const file = e.target.files[0]
@@ -92,7 +105,6 @@ function onFlavourUpload(e) {
 .config h1 {
   font-size: 28px;
   font-weight: 700;
-  margin-bottom: 10px;
 }
 
 .form-group {
@@ -109,7 +121,6 @@ label {
 .color-picker {
   width: 90px;
   height: 40px;
-  padding: 0;
   border: 2px solid #ccc;
   border-radius: 8px;
   cursor: pointer;
@@ -127,7 +138,6 @@ label {
   width: 100%;
   height: 1px;
   background: #ddd;
-  margin: 10px 0;
 }
 
 .text-input {
@@ -135,11 +145,6 @@ label {
   font-size: 16px;
   border: 2px solid #ccc;
   border-radius: 8px;
-  outline: none;
   width: 250px;
-}
-
-.text-input:focus {
-  border-color: #ffcc00;
 }
 </style>

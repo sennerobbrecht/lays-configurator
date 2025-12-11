@@ -14,7 +14,8 @@ const props = defineProps({
   color: { type: String, default: "#ffffff" },
   name: { type: String, default: "" },
   flavour: { type: String, default: "" },
-  font: { type: String, default: "Arial" }
+  font: { type: String, default: "Arial" },
+  packaging: { type: String, default: "normal" }
 })
 
 const canvas3d = ref(null)
@@ -36,6 +37,12 @@ function hexToRgb(hex) {
     g: parseInt(h.substring(2, 4), 16),
     b: parseInt(h.substring(4, 6), 16)
   }
+}
+
+function getMaterialConfig(type) {
+  if (type === "matte") return { roughness: 1.0, metalness: 0.0 }
+  if (type === "glossy") return { roughness: 0.1, metalness: 0.3 }
+  return { roughness: 0.4, metalness: 0.0 }
 }
 
 async function createCustomTexture(text, color, flavourImg, font) {
@@ -81,11 +88,11 @@ async function createCustomTexture(text, color, flavourImg, font) {
   ctx.fillText(text, canvas.width / 2, canvas.height * 0.45)
 
   if (flavourImg) {
-    const flavourWidth = canvas.width * 0.4
-    const flavourHeight = (flavourImg.height / flavourImg.width) * flavourWidth
-    const fx = canvas.width / 2 - flavourWidth / 2
+    const fw = canvas.width * 0.4
+    const fh = (flavourImg.height / flavourImg.width) * fw
+    const fx = canvas.width / 2 - fw / 2
     const fy = canvas.height * 0.55
-    ctx.drawImage(flavourImg, fx, fy, flavourWidth, flavourHeight)
+    ctx.drawImage(flavourImg, fx, fy, fw, fh)
   }
 
   const texture = new THREE.CanvasTexture(canvas)
@@ -111,9 +118,9 @@ onMounted(async () => {
   renderer.setSize(viewer.clientWidth, viewer.clientHeight)
 
   scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1))
-  const dir = new THREE.DirectionalLight(0xffffff, 1)
-  dir.position.set(5, 10, 7)
-  scene.add(dir)
+  const dl = new THREE.DirectionalLight(0xffffff, 1)
+  dl.position.set(5, 10, 7)
+  scene.add(dl)
 
   const loader = new GLTFLoader()
   loader.load("/models/punga_chips_export.glb", async gltf => {
@@ -125,13 +132,14 @@ onMounted(async () => {
     model.scale.set(0.8, 0.8, 0.8)
 
     const texture = await createCustomTexture(props.name, props.color, flavourImg, props.font)
+    const mat = getMaterialConfig(props.packaging)
 
     model.traverse(child => {
       if (child.isMesh) {
         child.material = new THREE.MeshStandardMaterial({
           map: texture,
-          roughness: 0.4,
-          metalness: 0
+          roughness: mat.roughness,
+          metalness: mat.metalness
         })
       }
     })
@@ -172,14 +180,18 @@ onMounted(async () => {
 })
 
 watch(
-  () => [props.color, props.name, props.flavour, props.font],
+  () => [props.color, props.name, props.flavour, props.font, props.packaging],
   async () => {
     if (!model || !laysLogo) return
     const flavourImg = props.flavour ? await loadImage(props.flavour) : null
-    const tex = await createCustomTexture(props.name, props.color, flavourImg, props.font)
+    const texture = await createCustomTexture(props.name, props.color, flavourImg, props.font)
+    const mat = getMaterialConfig(props.packaging)
+
     model.traverse(child => {
       if (child.isMesh) {
-        child.material.map = tex
+        child.material.map = texture
+        child.material.roughness = mat.roughness
+        child.material.metalness = mat.metalness
         child.material.needsUpdate = true
       }
     })
