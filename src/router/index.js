@@ -5,6 +5,8 @@ import SuccessPage from '../views/SuccessPage.vue'
 import LoginPage from '../views/LoginPage.vue'
 import RegisterPage from '../views/RegisterPage.vue'
 import VotesPage from '../views/VotesPage.vue'
+import UpdateBagPage from '../views/UpdateBagPage.vue'
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -38,7 +40,13 @@ const router = createRouter({
       path: '/votes',
       name: 'Votes',
       component: VotesPage
-    }
+    },
+    {
+  path: "/update/:id",
+  name: "UpdateBag",
+  component: UpdateBagPage
+}
+
   ],
 })
 
