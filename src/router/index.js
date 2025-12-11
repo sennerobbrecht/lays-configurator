@@ -37,7 +37,7 @@ const router = createRouter({
       component: SuccessPage
     },
     {
-      path: '/votes',
+      path: '/vote',
       name: 'Votes',
       component: VotesPage
     },
