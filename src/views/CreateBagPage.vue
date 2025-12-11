@@ -152,19 +152,112 @@ function resetDesign() {
 </script>
 
 <style scoped>
-.layout { display: flex; width: 100%; height: 100vh; overflow: hidden; }
-.preview { width: 50%; background: #e8e8e8; }
-.config { width: 50%; padding: 50px 40px; background: #fff; display: flex; flex-direction: column; gap: 30px; overflow-y: auto; }
-.config h1 { font-size: 28px; font-weight: 700; }
-.form-group { display: flex; flex-direction: column; gap: 8px; }
-label { font-size: 16px; font-weight: 600; }
-.color-picker { width: 90px; height: 40px; border: 2px solid #ccc; border-radius: 8px; }
-.font-select { width: 200px; padding: 10px; border-radius: 8px; border: 2px solid #ccc; font-size: 16px; }
-.text-input { padding: 10px 12px; font-size: 16px; border: 2px solid #ccc; border-radius: 8px; width: 250px; }
-.text-area { padding: 12px; font-size: 16px; border: 2px solid #ccc; border-radius: 8px; width: 350px; height: 120px; resize: none; }
-.keyflavour-row { display: flex; align-items: center; gap: 10px; }
-.add-btn, .remove-btn, .reset-btn { padding: 10px 18px; border-radius: 6px; border: none; cursor: pointer; font-size: 16px; }
-.add-btn { background: #4caf50; color: white; width: fit-content; }
-.remove-btn { background: #e53935; color: white; }
-.reset-btn { background: #1976d2; color: white; width: fit-content; margin-top: 20px; }
+.layout {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.preview {
+  flex: 1;
+  background: #e8e8e8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.config {
+  width: 380px;
+  padding: 40px 30px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  overflow-y: auto;
+  border-left: 1px solid #ddd;
+}
+
+.config h1 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+label {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.color-picker {
+  width: 80px;
+  height: 35px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+}
+
+.font-select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 2px solid #ccc;
+  font-size: 15px;
+}
+
+.text-input {
+  padding: 10px 12px;
+  font-size: 15px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  width: 100%;
+}
+
+.text-area {
+  padding: 12px;
+  font-size: 15px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  width: 100%;
+  height: 100px;
+  resize: none;
+}
+
+.keyflavour-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.add-btn, .remove-btn, .reset-btn {
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.add-btn {
+  background: #4caf50;
+  color: white;
+  width: fit-content;
+}
+
+.remove-btn {
+  background: #e53935;
+  color: white;
+}
+
+.reset-btn {
+  background: #1976d2;
+  color: white;
+  width: 100%;
+  margin-top: 20px;
+}
+
 </style>

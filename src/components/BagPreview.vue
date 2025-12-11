@@ -50,32 +50,32 @@ function getMaterialConfig(type) {
 }
 
 function drawPattern(ctx, w, h, pattern) {
-  ctx.strokeStyle = "rgba(0,0,0,0.15)"
-  ctx.lineWidth = 8
+  ctx.lineWidth = 14
+  ctx.strokeStyle = "rgba(0,0,0,0.35)"
+  ctx.fillStyle = "rgba(0,0,0,0.25)"
 
   if (pattern === "waves") {
-    for (let y = 0; y < h; y += 60) {
+    for (let y = 0; y < h; y += 80) {
       ctx.beginPath()
-      for (let x = 0; x < w; x += 20) {
-        ctx.quadraticCurveTo(x + 10, y + 20, x + 20, y)
+      for (let x = 0; x < w; x += 40) {
+        ctx.quadraticCurveTo(x + 20, y + 35, x + 40, y)
       }
       ctx.stroke()
     }
   }
 
   if (pattern === "dots") {
-    ctx.fillStyle = "rgba(0,0,0,0.1)"
-    for (let y = 0; y < h; y += 50) {
-      for (let x = 0; x < w; x += 50) {
+    for (let y = 0; y < h; y += 100) {
+      for (let x = 0; x < w; x += 100) {
         ctx.beginPath()
-        ctx.arc(x, y, 10, 0, Math.PI * 2)
+        ctx.arc(x, y, 30, 0, Math.PI * 2)
         ctx.fill()
       }
     }
   }
 
   if (pattern === "stripes") {
-    for (let y = 0; y < h; y += 50) {
+    for (let y = 0; y < h; y += 70) {
       ctx.beginPath()
       ctx.moveTo(0, y)
       ctx.lineTo(w, y)
@@ -84,7 +84,7 @@ function drawPattern(ctx, w, h, pattern) {
   }
 
   if (pattern === "diagonal") {
-    for (let i = -h; i < w; i += 60) {
+    for (let i = -h; i < w; i += 120) {
       ctx.beginPath()
       ctx.moveTo(i, 0)
       ctx.lineTo(i + h, h)
@@ -93,13 +93,13 @@ function drawPattern(ctx, w, h, pattern) {
   }
 
   if (pattern === "grid") {
-    for (let y = 0; y < h; y += 40) {
+    for (let y = 0; y < h; y += 80) {
       ctx.beginPath()
       ctx.moveTo(0, y)
       ctx.lineTo(w, y)
       ctx.stroke()
     }
-    for (let x = 0; x < w; x += 40) {
+    for (let x = 0; x < w; x += 80) {
       ctx.beginPath()
       ctx.moveTo(x, 0)
       ctx.lineTo(x, h)
