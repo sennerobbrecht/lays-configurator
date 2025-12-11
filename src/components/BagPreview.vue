@@ -12,11 +12,12 @@ import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js"
 import logoSrc from "@/assets/lays_logo_transparent.png"
 
 const props = defineProps({
-  color: { type: String, default: "#ffffff" },
-  name: { type: String, default: "" },
-  flavour: { type: String, default: "" },
-  font: { type: String, default: "Arial" },
-  packaging: { type: String, default: "normal" }
+  color: String,
+  name: String,
+  flavour: String,
+  font: String,
+  packaging: String,
+  pattern: String
 })
 
 const canvas3d = ref(null)
@@ -48,7 +49,66 @@ function getMaterialConfig(type) {
   return { roughness: 0.4, metalness: 0.0 }
 }
 
-async function createCustomTexture(text, color, flavourImg, font) {
+function drawPattern(ctx, w, h, pattern) {
+  ctx.strokeStyle = "rgba(0,0,0,0.15)"
+  ctx.lineWidth = 8
+
+  if (pattern === "waves") {
+    for (let y = 0; y < h; y += 60) {
+      ctx.beginPath()
+      for (let x = 0; x < w; x += 20) {
+        ctx.quadraticCurveTo(x + 10, y + 20, x + 20, y)
+      }
+      ctx.stroke()
+    }
+  }
+
+  if (pattern === "dots") {
+    ctx.fillStyle = "rgba(0,0,0,0.1)"
+    for (let y = 0; y < h; y += 50) {
+      for (let x = 0; x < w; x += 50) {
+        ctx.beginPath()
+        ctx.arc(x, y, 10, 0, Math.PI * 2)
+        ctx.fill()
+      }
+    }
+  }
+
+  if (pattern === "stripes") {
+    for (let y = 0; y < h; y += 50) {
+      ctx.beginPath()
+      ctx.moveTo(0, y)
+      ctx.lineTo(w, y)
+      ctx.stroke()
+    }
+  }
+
+  if (pattern === "diagonal") {
+    for (let i = -h; i < w; i += 60) {
+      ctx.beginPath()
+      ctx.moveTo(i, 0)
+      ctx.lineTo(i + h, h)
+      ctx.stroke()
+    }
+  }
+
+  if (pattern === "grid") {
+    for (let y = 0; y < h; y += 40) {
+      ctx.beginPath()
+      ctx.moveTo(0, y)
+      ctx.lineTo(w, y)
+      ctx.stroke()
+    }
+    for (let x = 0; x < w; x += 40) {
+      ctx.beginPath()
+      ctx.moveTo(x, 0)
+      ctx.lineTo(x, h)
+      ctx.stroke()
+    }
+  }
+}
+
+async function createCustomTexture(text, color, flavourImg, font, pattern) {
   const canvas = document.createElement("canvas")
   canvas.width = 1024
   canvas.height = 1024
@@ -57,6 +117,10 @@ async function createCustomTexture(text, color, flavourImg, font) {
   const fillColor = props.packaging === "premium" ? "#d4af37" : color
   ctx.fillStyle = fillColor
   ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+  if (pattern !== "none") {
+    drawPattern(ctx, canvas.width, canvas.height, pattern)
+  }
 
   const logoCanvas = document.createElement("canvas")
   logoCanvas.width = laysLogo.width
@@ -101,7 +165,6 @@ async function createCustomTexture(text, color, flavourImg, font) {
 
   const texture = new THREE.CanvasTexture(canvas)
   texture.flipY = false
-  texture.needsUpdate = true
   return texture
 }
 
@@ -152,7 +215,8 @@ onMounted(async () => {
       props.name,
       props.color,
       flavourImg,
-      props.font
+      props.font,
+      props.pattern
     )
     const mat = getMaterialConfig(props.packaging)
 
@@ -162,7 +226,7 @@ onMounted(async () => {
           map: texture,
           roughness: mat.roughness,
           metalness: mat.metalness,
-          envMapIntensity: 1.2
+          envMapIntensity: 1.1
         })
       }
     })
@@ -208,17 +272,19 @@ watch(
     props.name,
     props.flavour,
     props.font,
-    props.packaging
+    props.packaging,
+    props.pattern
   ],
   async () => {
-    if (!model || !laysLogo) return
-
+    if (!model) return
     const flavourImg = props.flavour ? await loadImage(props.flavour) : null
+
     const texture = await createCustomTexture(
       props.name,
       props.color,
       flavourImg,
-      props.font
+      props.font,
+      props.pattern
     )
     const mat = getMaterialConfig(props.packaging)
 
@@ -227,7 +293,7 @@ watch(
         child.material.map = texture
         child.material.roughness = mat.roughness
         child.material.metalness = mat.metalness
-        child.material.envMapIntensity = 1.2
+        child.material.envMapIntensity = 1.1
         child.material.needsUpdate = true
       }
     })
@@ -236,13 +302,6 @@ watch(
 </script>
 
 <style scoped>
-.viewer-wrapper {
-  width: 100%;
-  height: 100%;
-}
-.three-canvas {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
+.viewer-wrapper { width: 100%; height: 100%; }
+.three-canvas { width: 100%; height: 100%; display: block; }
 </style>

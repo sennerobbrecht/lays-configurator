@@ -7,6 +7,7 @@
         :flavour="bagFlavour"
         :font="bagFont"
         :packaging="bagPackaging"
+        :pattern="bagPattern"
         :inspiration="inspiration"
         :keyFlavours="keyFlavours"
       />
@@ -56,8 +57,15 @@
       <div class="divider"></div>
 
       <div class="form-group">
-        <label>Select Flavour Image</label>
-        <input type="file" accept="image/*" @change="onFlavourUpload" />
+        <label>Select Pattern</label>
+        <select v-model="bagPattern" class="font-select">
+          <option value="none">None</option>
+          <option value="waves">Waves</option>
+          <option value="dots">Dots</option>
+          <option value="stripes">Stripes</option>
+          <option value="diagonal">Diagonal</option>
+          <option value="grid">Grid</option>
+        </select>
       </div>
 
       <div class="divider"></div>
@@ -71,11 +79,32 @@
 
       <div class="form-group">
         <label>Key Flavours</label>
-        <div v-for="(flavour, index) in keyFlavours" :key="index" class="keyflavour-row">
+
+        <div
+          v-for="(kf, index) in keyFlavours"
+          :key="index"
+          class="keyflavour-row"
+        >
           <input class="text-input" v-model="keyFlavours[index]" />
-          <button class="remove-btn" @click="removeKeyFlavour(index)" v-if="keyFlavours.length > 1">−</button>
+          <button
+            class="remove-btn"
+            v-if="keyFlavours.length > 1"
+            @click="removeKeyFlavour(index)"
+          >
+            −
+          </button>
         </div>
-        <button class="add-btn" @click="addKeyFlavour">Add Key Flavour</button>
+
+        <button class="add-btn" @click="addKeyFlavour">
+          Add Key Flavour
+        </button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="form-group">
+        <label>Select Flavour Image</label>
+        <input type="file" accept="image/*" @change="onFlavourUpload" />
       </div>
     </div>
   </div>
@@ -90,6 +119,8 @@ const bagName = ref("")
 const bagFlavour = ref("")
 const bagFont = ref("Arial")
 const bagPackaging = ref("normal")
+const bagPattern = ref("none")
+
 const inspiration = ref("")
 const keyFlavours = ref([""])
 
@@ -105,98 +136,25 @@ function onFlavourUpload(e) {
   const file = e.target.files[0]
   if (!file) return
   const reader = new FileReader()
-  reader.onload = () => {
-    bagFlavour.value = reader.result
-  }
+  reader.onload = () => (bagFlavour.value = reader.result)
   reader.readAsDataURL(file)
 }
 </script>
 
 <style scoped>
-.layout {
-  display: flex;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-}
-.preview {
-  width: 50%;
-  background: #e8e8e8;
-}
-.config {
-  width: 50%;
-  padding: 50px 40px;
-  background: #ffffff;
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-}
-.config h1 {
-  font-size: 28px;
-  font-weight: 700;
-}
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-label {
-  font-size: 16px;
-  font-weight: 600;
-}
-.color-picker {
-  width: 90px;
-  height: 40px;
-  border: 2px solid #ccc;
-  border-radius: 8px;
-}
-.font-select {
-  width: 200px;
-  padding: 10px;
-  border-radius: 8px;
-  border: 2px solid #ccc;
-  font-size: 16px;
-}
-.divider {
-  width: 100%;
-  height: 1px;
-  background: #ddd;
-}
-.text-input {
-  padding: 10px 12px;
-  font-size: 16px;
-  border: 2px solid #ccc;
-  border-radius: 8px;
-  width: 250px;
-}
-.text-area {
-  padding: 12px;
-  font-size: 16px;
-  border: 2px solid #ccc;
-  border-radius: 8px;
-  width: 350px;
-  height: 120px;
-  resize: none;
-}
-.keyflavour-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.add-btn,
-.remove-btn {
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-}
-.add-btn {
-  background: #4caf50;
-  color: white;
-}
-.remove-btn {
-  background: #e53935;
-  color: white;
-}
+.layout { display: flex; width: 100%; height: 100vh; overflow: hidden; }
+.preview { width: 50%; background: #e8e8e8; }
+.config { width: 50%; padding: 50px 40px; background: #fff; display: flex; flex-direction: column; gap: 30px; }
+.config h1 { font-size: 28px; font-weight: 700; }
+.form-group { display: flex; flex-direction: column; gap: 8px; }
+label { font-size: 16px; font-weight: 600; }
+.color-picker { width: 90px; height: 40px; border: 2px solid #ccc; border-radius: 8px; }
+.font-select { width: 200px; padding: 10px; border-radius: 8px; border: 2px solid #ccc; font-size: 16px; }
+.divider { width: 100%; height: 1px; background: #ddd; }
+.text-input { padding: 10px 12px; font-size: 16px; border: 2px solid #ccc; border-radius: 8px; width: 250px; }
+.text-area { padding: 12px; font-size: 16px; border: 2px solid #ccc; border-radius: 8px; width: 350px; height: 120px; resize: none; }
+.keyflavour-row { display: flex; align-items: center; gap: 10px; }
+.add-btn, .remove-btn { padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 16px; }
+.add-btn { background: #4caf50; color: white; }
+.remove-btn { background: #e53935; color: white; }
 </style>
