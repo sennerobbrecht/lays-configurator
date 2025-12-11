@@ -9,18 +9,18 @@
       <div v-for="bag in bags" :key="bag._id" class="bag-card">
 
         <div class="image-wrapper">
-          <img
-            v-if="bag.image"
-            :src="bag.image"
-            class="bag-img"
-          />
+          <img v-if="bag.image" :src="bag.image" class="bag-img" />
         </div>
 
         <h2>{{ bag.name }}</h2>
         <p class="user">By: {{ bag.user }}</p>
 
-        <button class="vote-btn" @click="vote(bag._id)">
-          Vote
+        <button
+          class="vote-btn"
+          :class="{ remove: votes[bag._id] }"
+          @click="toggleVote(bag._id)"
+        >
+          {{ votes[bag._id] ? "Unvote" : "Vote" }}
         </button>
 
       </div>
@@ -34,44 +34,56 @@ import { ref, onMounted } from "vue"
 import axios from "axios"
 
 const bags = ref([])
+const votes = ref({})
 
 async function loadBags() {
-  try {
-    const res = await axios.get("https://lays-api-1.onrender.com/api/v1/bag")
-    bags.value = res.data
-  } catch (err) {
-    console.error("Failed to load bags:", err)
-  }
+  const res = await axios.get("https://lays-api-1.onrender.com/api/v1/bag")
+  bags.value = res.data
+  loadLocalVotes()
 }
 
-async function vote(bagId) {
-  const token = localStorage.getItem("token")
-  const userEmail = localStorage.getItem("userEmail")
+function loadLocalVotes() {
+  const email = localStorage.getItem("userEmail")
+  bags.value.forEach(bag => {
+    votes.value[bag._id] = localStorage.getItem(`voted_${email}_${bag._id}`) === "true"
+  })
+}
 
-  if (!token || !userEmail) {
+async function toggleVote(bagId) {
+  const token = localStorage.getItem("token")
+  const email = localStorage.getItem("userEmail")
+
+  if (!token || !email) {
     alert("You must be logged in to vote.")
     return
   }
 
-  try {
-    await axios.post(
-      `https://lays-api-1.onrender.com/api/v1/vote/${bagId}`,
-      {
-        user: userEmail,
-        bag: bagId
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`
+  if (!votes.value[bagId]) {
+    try {
+      await axios.post(
+        `https://lays-api-1.onrender.com/api/v1/vote/${bagId}`,
+        { user: email, bag: bagId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      votes.value[bagId] = true
+      localStorage.setItem(`voted_${email}_${bagId}`, "true")
+    } catch {
+      alert("Voting failed.")
+    }
+  } else {
+    try {
+      await axios.delete(
+        `https://lays-api-1.onrender.com/api/v1/vote/${bagId}`,
+        {
+          data: { user: email, bag: bagId },
+          headers: { Authorization: `Bearer ${token}` }
         }
-      }
-    )
-
-    alert("Vote submitted!")
-
-  } catch (err) {
-    console.error(err)
-    alert("Voting failed.")
+      )
+      votes.value[bagId] = false
+      localStorage.removeItem(`voted_${email}_${bagId}`)
+    } catch {
+      alert("Unvote failed.")
+    }
   }
 }
 
@@ -98,11 +110,6 @@ onMounted(loadBags)
   border-radius: 14px;
   padding: 18px;
   box-shadow: 0px 8px 22px rgba(0,0,0,0.12);
-  transition: transform 0.2s ease;
-}
-
-.bag-card:hover {
-  transform: translateY(-6px);
 }
 
 .image-wrapper {
@@ -110,10 +117,10 @@ onMounted(loadBags)
   height: 260px;
   background: #f4f4f4;
   border-radius: 12px;
-  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
 .bag-img {
@@ -136,6 +143,15 @@ onMounted(loadBags)
 
 .vote-btn:hover {
   background: #ffd633;
+}
+
+.vote-btn.remove {
+  background: #ff5c5c;
+  color: white;
+}
+
+.vote-btn.remove:hover {
+  background: #ff1f1f;
 }
 
 .user {
