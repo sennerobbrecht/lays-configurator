@@ -19,6 +19,10 @@
         <h2>{{ bag.name }}</h2>
         <p class="user">By: {{ bag.user }}</p>
 
+        <button class="vote-btn" @click="vote(bag._id)">
+          Vote
+        </button>
+
       </div>
     </div>
 
@@ -37,6 +41,37 @@ async function loadBags() {
     bags.value = res.data
   } catch (err) {
     console.error("Failed to load bags:", err)
+  }
+}
+
+async function vote(bagId) {
+  const token = localStorage.getItem("token")
+  const userEmail = localStorage.getItem("userEmail")
+
+  if (!token || !userEmail) {
+    alert("You must be logged in to vote.")
+    return
+  }
+
+  try {
+    await axios.post(
+      `https://lays-api-1.onrender.com/api/v1/vote/${bagId}`,
+      {
+        user: userEmail,
+        bag: bagId
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    )
+
+    alert("Vote submitted!")
+
+  } catch (err) {
+    console.error(err)
+    alert("Voting failed.")
   }
 }
 
@@ -85,6 +120,22 @@ onMounted(loadBags)
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.vote-btn {
+  margin-top: 12px;
+  background: #ffcc00;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.vote-btn:hover {
+  background: #ffd633;
 }
 
 .user {
