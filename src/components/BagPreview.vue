@@ -8,6 +8,7 @@
 import { onMounted, ref, watch } from "vue"
 import * as THREE from "three"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
+import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js"
 import logoSrc from "@/assets/lays_logo_transparent.png"
 
 const props = defineProps({
@@ -42,6 +43,8 @@ function hexToRgb(hex) {
 function getMaterialConfig(type) {
   if (type === "matte") return { roughness: 1.0, metalness: 0.0 }
   if (type === "glossy") return { roughness: 0.1, metalness: 0.3 }
+  if (type === "eco") return { roughness: 0.9, metalness: 0.0 }
+  if (type === "premium") return { roughness: 0.25, metalness: 0.9 }
   return { roughness: 0.4, metalness: 0.0 }
 }
 
@@ -51,7 +54,8 @@ async function createCustomTexture(text, color, flavourImg, font) {
   canvas.height = 1024
   const ctx = canvas.getContext("2d")
 
-  ctx.fillStyle = color
+  const fillColor = props.packaging === "premium" ? "#d4af37" : color
+  ctx.fillStyle = fillColor
   ctx.fillRect(0, 0, canvas.width, canvas.height)
 
   const logoCanvas = document.createElement("canvas")
@@ -62,7 +66,7 @@ async function createCustomTexture(text, color, flavourImg, font) {
 
   const imgData = lctx.getImageData(0, 0, logoCanvas.width, logoCanvas.height)
   const data = imgData.data
-  const rgb = hexToRgb(color)
+  const rgb = hexToRgb(fillColor)
 
   for (let i = 0; i < data.length; i += 4) {
     if (data[i + 3] < 20) {
@@ -111,13 +115,26 @@ onMounted(async () => {
   const scene = new THREE.Scene()
   scene.background = new THREE.Color(0xf0f0f0)
 
-  const camera = new THREE.PerspectiveCamera(75, viewer.clientWidth / viewer.clientHeight, 0.1, 1000)
+  const envLoader = new RGBELoader()
+  envLoader.load("/hdr/studio.hdr", hdr => {
+    hdr.mapping = THREE.EquirectangularReflectionMapping
+    scene.environment = hdr
+  })
+
+  const camera = new THREE.PerspectiveCamera(
+    75,
+    viewer.clientWidth / viewer.clientHeight,
+    0.1,
+    1000
+  )
   camera.position.set(0, 0, 40)
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true })
   renderer.setSize(viewer.clientWidth, viewer.clientHeight)
 
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1))
+  const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 1)
+  scene.add(hemi)
+
   const dl = new THREE.DirectionalLight(0xffffff, 1)
   dl.position.set(5, 10, 7)
   scene.add(dl)
@@ -131,7 +148,12 @@ onMounted(async () => {
     model.position.sub(center)
     model.scale.set(0.8, 0.8, 0.8)
 
-    const texture = await createCustomTexture(props.name, props.color, flavourImg, props.font)
+    const texture = await createCustomTexture(
+      props.name,
+      props.color,
+      flavourImg,
+      props.font
+    )
     const mat = getMaterialConfig(props.packaging)
 
     model.traverse(child => {
@@ -139,7 +161,8 @@ onMounted(async () => {
         child.material = new THREE.MeshStandardMaterial({
           map: texture,
           roughness: mat.roughness,
-          metalness: mat.metalness
+          metalness: mat.metalness,
+          envMapIntensity: 1.2
         })
       }
     })
@@ -155,7 +178,7 @@ onMounted(async () => {
     prev = { x: e.clientX, y: e.clientY }
   })
 
-  canvas.addEventListener("mouseup", () => dragging = false)
+  canvas.addEventListener("mouseup", () => (dragging = false))
 
   canvas.addEventListener("mousemove", e => {
     if (dragging && model) {
@@ -180,11 +203,23 @@ onMounted(async () => {
 })
 
 watch(
-  () => [props.color, props.name, props.flavour, props.font, props.packaging],
+  () => [
+    props.color,
+    props.name,
+    props.flavour,
+    props.font,
+    props.packaging
+  ],
   async () => {
     if (!model || !laysLogo) return
+
     const flavourImg = props.flavour ? await loadImage(props.flavour) : null
-    const texture = await createCustomTexture(props.name, props.color, flavourImg, props.font)
+    const texture = await createCustomTexture(
+      props.name,
+      props.color,
+      flavourImg,
+      props.font
+    )
     const mat = getMaterialConfig(props.packaging)
 
     model.traverse(child => {
@@ -192,6 +227,7 @@ watch(
         child.material.map = texture
         child.material.roughness = mat.roughness
         child.material.metalness = mat.metalness
+        child.material.envMapIntensity = 1.2
         child.material.needsUpdate = true
       }
     })

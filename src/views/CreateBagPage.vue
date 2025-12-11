@@ -48,6 +48,8 @@
           <option value="normal">Normal</option>
           <option value="matte">Matte</option>
           <option value="glossy">Glossy</option>
+          <option value="eco">Eco</option>
+          <option value="premium">Premium Gold</option>
         </select>
       </div>
 
@@ -69,12 +71,10 @@
 
       <div class="form-group">
         <label>Key Flavours</label>
-
         <div v-for="(flavour, index) in keyFlavours" :key="index" class="keyflavour-row">
           <input class="text-input" v-model="keyFlavours[index]" />
           <button class="remove-btn" @click="removeKeyFlavour(index)" v-if="keyFlavours.length > 1">−</button>
         </div>
-
         <button class="add-btn" @click="addKeyFlavour">Add Key Flavour</button>
       </div>
     </div>
@@ -119,12 +119,10 @@ function onFlavourUpload(e) {
   height: 100vh;
   overflow: hidden;
 }
-
 .preview {
   width: 50%;
   background: #e8e8e8;
 }
-
 .config {
   width: 50%;
   padding: 50px 40px;
@@ -133,31 +131,25 @@ function onFlavourUpload(e) {
   flex-direction: column;
   gap: 30px;
 }
-
 .config h1 {
   font-size: 28px;
   font-weight: 700;
 }
-
 .form-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
-
 label {
   font-size: 16px;
   font-weight: 600;
 }
-
 .color-picker {
   width: 90px;
   height: 40px;
   border: 2px solid #ccc;
   border-radius: 8px;
-  cursor: pointer;
 }
-
 .font-select {
   width: 200px;
   padding: 10px;
@@ -165,13 +157,11 @@ label {
   border: 2px solid #ccc;
   font-size: 16px;
 }
-
 .divider {
   width: 100%;
   height: 1px;
   background: #ddd;
 }
-
 .text-input {
   padding: 10px 12px;
   font-size: 16px;
@@ -179,7 +169,6 @@ label {
   border-radius: 8px;
   width: 250px;
 }
-
 .text-area {
   padding: 12px;
   font-size: 16px;
@@ -189,13 +178,11 @@ label {
   height: 120px;
   resize: none;
 }
-
 .keyflavour-row {
   display: flex;
   align-items: center;
   gap: 10px;
 }
-
 .add-btn,
 .remove-btn {
   padding: 6px 12px;
@@ -204,13 +191,10 @@ label {
   cursor: pointer;
   font-size: 16px;
 }
-
 .add-btn {
   background: #4caf50;
   color: white;
-  width: fit-content;
 }
-
 .remove-btn {
   background: #e53935;
   color: white;
