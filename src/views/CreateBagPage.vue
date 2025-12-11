@@ -5,6 +5,7 @@
         :color="bagColor"
         :name="bagName"
         :flavour="bagFlavour"
+        :font="bagFont"
       />
     </div>
 
@@ -26,6 +27,19 @@
       <div class="divider"></div>
 
       <div class="form-group">
+        <label>Select Font</label>
+        <select v-model="bagFont" class="font-select">
+          <option value="Arial">Arial</option>
+          <option value="Verdana">Verdana</option>
+          <option value="Georgia">Georgia</option>
+          <option value="Courier New">Courier New</option>
+          <option value="Impact">Impact</option>
+        </select>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="form-group">
         <label>Select Flavour Image</label>
         <input type="file" accept="image/*" @change="onFlavourUpload" />
       </div>
@@ -40,11 +54,11 @@ import BagPreview from "../components/BagPreview.vue"
 const bagColor = ref("#ffffff")
 const bagName = ref("")
 const bagFlavour = ref("")
+const bagFont = ref("Arial")
 
 function onFlavourUpload(e) {
   const file = e.target.files[0]
   if (!file) return
-
   const reader = new FileReader()
   reader.onload = () => {
     bagFlavour.value = reader.result
@@ -101,6 +115,14 @@ label {
   cursor: pointer;
 }
 
+.font-select {
+  width: 200px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 2px solid #ccc;
+  font-size: 16px;
+}
+
 .divider {
   width: 100%;
   height: 1px;
@@ -116,6 +138,7 @@ label {
   outline: none;
   width: 250px;
 }
+
 .text-input:focus {
   border-color: #ffcc00;
 }
