@@ -44,6 +44,7 @@
           <option value="matte">Matte</option>
           <option value="glossy">Glossy</option>
           <option value="eco">Eco</option>
+          <option value="paper">Paper</option>
           <option value="premium">Premium Gold</option>
         </select>
       </div>
@@ -93,15 +94,20 @@
         <input type="file" accept="image/*" @change="onFlavourUpload" />
       </div>
 
-      <div v-if="currentStep >= 8">
-        <button class="reset-btn" @click="resetDesign">Reset Design</button>
-      </div>
+      <button v-if="currentStep >= 8" class="save-btn" @click="saveBag">
+        Save My Bag
+      </button>
+
+      <button v-if="currentStep >= 8" class="reset-btn" @click="resetDesign">
+        Reset Design
+      </button>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from "vue"
+import axios from "axios"
 import BagPreview from "../components/BagPreview.vue"
 
 const currentStep = ref(1)
@@ -136,6 +142,40 @@ function onFlavourUpload(e) {
     nextStep(9)
   }
   reader.readAsDataURL(file)
+}
+
+async function saveBag() {
+  const token = localStorage.getItem("token")
+  const userEmail = localStorage.getItem("userEmail")
+
+  if (!token || !userEmail) {
+    alert("You must be logged in!")
+    return
+  }
+
+  const body = {
+    name: bagName.value,
+    image: bagFlavour.value,
+    bagColor: bagColor.value,
+    font: bagFont.value,
+    pattern: bagPattern.value,
+    packaging: bagPackaging.value,
+    inspiration: inspiration.value,
+    keyFlavours: keyFlavours.value,
+    user: userEmail
+  }
+
+  try {
+    await axios.post(
+      "https://lays-api-1.onrender.com/api/v1/bag",
+      body,
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+    alert("Bag saved successfully!")
+  } catch (err) {
+    console.error(err)
+    alert("Saving failed")
+  }
 }
 
 function resetDesign() {
@@ -178,7 +218,7 @@ function resetDesign() {
   border-left: 1px solid #ddd;
 }
 
-.config h1 {
+h1 {
   font-size: 24px;
   font-weight: 700;
   margin-bottom: 10px;
@@ -202,7 +242,9 @@ label {
   border-radius: 8px;
 }
 
-.font-select {
+.font-select,
+.text-input,
+.text-area {
   width: 100%;
   padding: 10px;
   border-radius: 8px;
@@ -210,20 +252,7 @@ label {
   font-size: 15px;
 }
 
-.text-input {
-  padding: 10px 12px;
-  font-size: 15px;
-  border: 2px solid #ccc;
-  border-radius: 8px;
-  width: 100%;
-}
-
 .text-area {
-  padding: 12px;
-  font-size: 15px;
-  border: 2px solid #ccc;
-  border-radius: 8px;
-  width: 100%;
   height: 100px;
   resize: none;
 }
@@ -234,7 +263,10 @@ label {
   gap: 8px;
 }
 
-.add-btn, .remove-btn, .reset-btn {
+.add-btn,
+.remove-btn,
+.reset-btn,
+.save-btn {
   padding: 10px 14px;
   border-radius: 6px;
   border: none;
@@ -245,7 +277,6 @@ label {
 .add-btn {
   background: #4caf50;
   color: white;
-  width: fit-content;
 }
 
 .remove-btn {
@@ -257,7 +288,13 @@ label {
   background: #1976d2;
   color: white;
   width: 100%;
-  margin-top: 20px;
 }
 
+.save-btn {
+  background: #ffcc00;
+  color: #333;
+  width: 100%;
+  font-weight: bold;
+  margin-top: 10px;
+}
 </style>
