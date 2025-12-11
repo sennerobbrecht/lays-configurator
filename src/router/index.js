@@ -4,6 +4,7 @@ import CreateBagPage from '../views/CreateBagPage.vue'
 import SuccessPage from '../views/SuccessPage.vue'
 import LoginPage from '../views/LoginPage.vue'
 import RegisterPage from '../views/RegisterPage.vue'
+import VotesPage from '../views/VotesPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,6 +33,11 @@ const router = createRouter({
       path: '/success',
       name: 'Success',
       component: SuccessPage
+    },
+    {
+      path: '/votes',
+      name: 'Votes',
+      component: VotesPage
     }
   ],
 })
