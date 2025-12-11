@@ -7,6 +7,8 @@
         :flavour="bagFlavour"
         :font="bagFont"
         :packaging="bagPackaging"
+        :inspiration="inspiration"
+        :keyFlavours="keyFlavours"
       />
     </div>
 
@@ -55,6 +57,26 @@
         <label>Select Flavour Image</label>
         <input type="file" accept="image/*" @change="onFlavourUpload" />
       </div>
+
+      <div class="divider"></div>
+
+      <div class="form-group">
+        <label>Inspiration</label>
+        <textarea class="text-area" v-model="inspiration"></textarea>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="form-group">
+        <label>Key Flavours</label>
+
+        <div v-for="(flavour, index) in keyFlavours" :key="index" class="keyflavour-row">
+          <input class="text-input" v-model="keyFlavours[index]" />
+          <button class="remove-btn" @click="removeKeyFlavour(index)" v-if="keyFlavours.length > 1">−</button>
+        </div>
+
+        <button class="add-btn" @click="addKeyFlavour">Add Key Flavour</button>
+      </div>
     </div>
   </div>
 </template>
@@ -68,6 +90,16 @@ const bagName = ref("")
 const bagFlavour = ref("")
 const bagFont = ref("Arial")
 const bagPackaging = ref("normal")
+const inspiration = ref("")
+const keyFlavours = ref([""])
+
+function addKeyFlavour() {
+  keyFlavours.value.push("")
+}
+
+function removeKeyFlavour(index) {
+  keyFlavours.value.splice(index, 1)
+}
 
 function onFlavourUpload(e) {
   const file = e.target.files[0]
@@ -146,5 +178,41 @@ label {
   border: 2px solid #ccc;
   border-radius: 8px;
   width: 250px;
+}
+
+.text-area {
+  padding: 12px;
+  font-size: 16px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  width: 350px;
+  height: 120px;
+  resize: none;
+}
+
+.keyflavour-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.add-btn,
+.remove-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.add-btn {
+  background: #4caf50;
+  color: white;
+  width: fit-content;
+}
+
+.remove-btn {
+  background: #e53935;
+  color: white;
 }
 </style>
