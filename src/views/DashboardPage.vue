@@ -36,11 +36,27 @@
 
       <div v-else class="bag-grid">
         <div v-for="bag in myBags" :key="bag._id" class="bag-card">
-          <img :src="getBagPreview(bag.image)" class="bag-img" />
+          <div class="preview-wrapper">
+            <BagPreview
+              :color="bag.bagColor"
+              :name="bag.name"
+              :flavour="bag.image"
+              :font="bag.font"
+              :packaging="bag.packaging"
+              :pattern="bag.pattern"
+            />
+          </div>
+
           <div class="bag-info">
             <h3>{{ bag.name }}</h3>
             <p>Created on {{ formatDate(bag.createdAt) }}</p>
-            <router-link :to="`/update/${bag._id}`" class="edit-btn">Edit Bag</router-link>
+
+            <router-link
+              :to="`/update/${bag._id}`"
+              class="edit-btn"
+            >
+              Edit Bag
+            </router-link>
           </div>
         </div>
       </div>
@@ -52,6 +68,7 @@
 import { ref, onMounted } from "vue"
 import { useRouter } from "vue-router"
 import axios from "axios"
+import BagPreview from "../components/BagPreview.vue"
 
 const router = useRouter()
 const loading = ref(true)
@@ -71,10 +88,6 @@ async function loadBags() {
   } finally {
     loading.value = false
   }
-}
-
-function getBagPreview(image) {
-  return image?.startsWith("data:") ? image : `/uploads/${image}`
 }
 
 function formatDate(date) {
@@ -255,12 +268,15 @@ function logout() {
   box-shadow: 0 12px 28px rgba(0,0,0,0.18);
 }
 
-.bag-img {
+.preview-wrapper {
   width: 100%;
   height: 260px;
-  object-fit: contain;
   background: #f3f3f3;
   border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .bag-info {
