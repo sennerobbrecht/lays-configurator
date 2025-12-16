@@ -308,6 +308,17 @@ watch(
 </script>
 
 <style scoped>
-.viewer-wrapper { width: 100%; height: 100%; }
-.three-canvas { width: 100%; height: 100%; display: block; }
+
+
+.viewer-wrapper {
+  width: 100%;
+  height: 100%;
+}
+
+.three-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
 </style>
