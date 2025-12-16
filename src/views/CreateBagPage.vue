@@ -69,11 +69,7 @@
       <div v-if="currentStep >= 7" class="form-group">
         <label>Step 7 — Key Flavours</label>
 
-        <div
-          v-for="(kf, index) in keyFlavours"
-          :key="index"
-          class="keyflavour-row"
-        >
+        <div v-for="(kf, index) in keyFlavours" :key="index" class="keyflavour-row">
           <input class="text-input" v-model="keyFlavours[index]" @input="nextStep(8)" />
           <button
             class="remove-btn"
@@ -84,9 +80,7 @@
           </button>
         </div>
 
-        <button class="add-btn" @click="addKeyFlavour">
-          Add Key Flavour
-        </button>
+        <button class="add-btn" @click="addKeyFlavour">Add Key Flavour</button>
       </div>
 
       <div v-if="currentStep >= 8" class="form-group">
@@ -102,6 +96,16 @@
         Reset Design
       </button>
     </div>
+
+    <div v-if="showSuccess" class="modal-overlay">
+      <div class="modal">
+        <button class="close" @click="closeModal">×</button>
+        <h2>Bag saved successfully!</h2>
+        <router-link to="/dashboard" class="dashboard-btn">
+          Return to Dashboard
+        </router-link>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -111,6 +115,7 @@ import axios from "axios"
 import BagPreview from "../components/BagPreview.vue"
 
 const currentStep = ref(1)
+const showSuccess = ref(false)
 
 const bagColor = ref("#ffffff")
 const bagName = ref("")
@@ -136,11 +141,36 @@ function removeKeyFlavour(index) {
 function onFlavourUpload(e) {
   const file = e.target.files[0]
   if (!file) return
+
+  const img = new Image()
   const reader = new FileReader()
+
   reader.onload = () => {
-    bagFlavour.value = reader.result
+    img.src = reader.result
+  }
+
+  img.onload = () => {
+    const size = 512
+    const canvas = document.createElement("canvas")
+    canvas.width = size
+    canvas.height = size
+    const ctx = canvas.getContext("2d")
+
+    ctx.fillStyle = "#ffffff"
+    ctx.fillRect(0, 0, size, size)
+
+    const scale = Math.min(size / img.width, size / img.height)
+    const w = img.width * scale
+    const h = img.height * scale
+    const x = (size - w) / 2
+    const y = (size - h) / 2
+
+    ctx.drawImage(img, x, y, w, h)
+
+    bagFlavour.value = canvas.toDataURL("image/jpeg", 0.7)
     nextStep(9)
   }
+
   reader.readAsDataURL(file)
 }
 
@@ -148,10 +178,7 @@ async function saveBag() {
   const token = localStorage.getItem("token")
   const userEmail = localStorage.getItem("userEmail")
 
-  if (!token || !userEmail) {
-    alert("You must be logged in!")
-    return
-  }
+  if (!token || !userEmail) return
 
   const body = {
     name: bagName.value,
@@ -171,10 +198,10 @@ async function saveBag() {
       body,
       { headers: { Authorization: `Bearer ${token}` } }
     )
-    alert("Bag saved successfully!")
-  } catch (err) {
-    console.error(err)
-    alert("Saving failed")
+    showSuccess.value = true
+  } catch (error) {
+    console.error(error)
+    alert("Error saving bag. Please try again.")
   }
 }
 
@@ -188,6 +215,10 @@ function resetDesign() {
   bagPattern.value = "none"
   inspiration.value = ""
   keyFlavours.value = [""]
+}
+
+function closeModal() {
+  showSuccess.value = false
 }
 </script>
 
@@ -218,48 +249,32 @@ function resetDesign() {
   border-left: 1px solid #ddd;
 }
 
-h1 {
-  font-size: 24px;
-  font-weight: 700;
-  margin-bottom: 10px;
-}
-
 .form-group {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-label {
-  font-size: 15px;
-  font-weight: 600;
-}
-
 .color-picker {
   width: 80px;
   height: 35px;
-  border: 2px solid #ccc;
   border-radius: 8px;
 }
 
 .font-select,
 .text-input,
 .text-area {
-  width: 100%;
   padding: 10px;
   border-radius: 8px;
   border: 2px solid #ccc;
-  font-size: 15px;
 }
 
 .text-area {
   height: 100px;
-  resize: none;
 }
 
 .keyflavour-row {
   display: flex;
-  align-items: center;
   gap: 8px;
 }
 
@@ -267,11 +282,9 @@ label {
 .remove-btn,
 .reset-btn,
 .save-btn {
-  padding: 10px 14px;
+  padding: 10px;
   border-radius: 6px;
   border: none;
-  cursor: pointer;
-  font-size: 15px;
 }
 
 .add-btn {
@@ -287,14 +300,49 @@ label {
 .reset-btn {
   background: #1976d2;
   color: white;
-  width: 100%;
 }
 
 .save-btn {
   background: #ffcc00;
-  color: #333;
-  width: 100%;
   font-weight: bold;
-  margin-top: 10px;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal {
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  text-align: center;
+  position: relative;
+  width: 320px;
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.dashboard-btn {
+  margin-top: 20px;
+  display: inline-block;
+  padding: 12px 20px;
+  background: #ffd400;
+  border-radius: 10px;
+  font-weight: 700;
+  text-decoration: none;
+  color: #222;
 }
 </style>
