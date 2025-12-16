@@ -58,7 +58,7 @@ const loading = ref(true)
 const myBags = ref([])
 const email = localStorage.getItem("userEmail")
 
-if (!localStorage.getItem("token")) router.push("/login")
+if (!localStorage.getItem("token")) router.push("/")
 
 onMounted(() => {
   loadBags()
@@ -83,7 +83,7 @@ function formatDate(date) {
 
 function logout() {
   localStorage.clear()
-  router.push("/login")
+  router.push("/")
 }
 </script>
 
