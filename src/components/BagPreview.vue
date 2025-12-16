@@ -10,6 +10,9 @@ import * as THREE from "three"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js"
 import logoSrc from "@/assets/lays_logo_transparent.png"
+import { createEnvironment } from "@/three/CreateEnvironment"
+import { createPlatform } from "@/three/CreatePlatform"
+
 
 const props = defineProps({
   color: String,
@@ -176,6 +179,9 @@ onMounted(async () => {
   let flavourImg = props.flavour ? await loadImage(props.flavour) : null
 
   const scene = new THREE.Scene()
+  createEnvironment(scene)
+createPlatform(scene)
+
   scene.background = new THREE.Color(0xf0f0f0)
 
   const envLoader = new RGBELoader()
