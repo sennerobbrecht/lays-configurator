@@ -1,5 +1,9 @@
 <template>
   <div class="vote-container">
+  <button class="back-home" @click="$router.push('/dashboard')">
+  ← Back to Home
+</button>
+
     <h1>Vote For Your Favorite Lays Bag</h1>
 
     <div class="bag-grid">
@@ -231,6 +235,23 @@ onMounted(loadBags)
 .overlay-preview :deep(canvas) {
   width: 100%;
   height: 100%;
+}
+.back-home {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+  z-index: 1000;
+}
+
+.back-home:hover {
+  background: #f1f1f1;
 }
 
 </style>
