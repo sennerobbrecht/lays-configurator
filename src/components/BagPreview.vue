@@ -1,5 +1,5 @@
 <template>
-  <div class="viewer-wrapper">
+  <div  ref="viewer" class="viewer-wrapper">
     <canvas ref="canvas3d" class="three-canvas"></canvas>
   </div>
 </template>
@@ -13,6 +13,7 @@ import logoSrc from "@/assets/lays_logo_transparent.png"
 import { createEnvironment } from "@/three/CreateEnvironment"
 import { createPlatform } from "@/three/CreatePlatform"
 
+const viewer = ref(null)
 
 const props = defineProps({
   color: String,
@@ -173,7 +174,8 @@ async function createCustomTexture(text, color, flavourImg, font, pattern) {
 
 onMounted(async () => {
   const canvas = canvas3d.value
-  const viewer = document.querySelector(".viewer-wrapper")
+  const container = viewer.value
+
 
   laysLogo = await loadImage(logoSrc)
   let flavourImg = props.flavour ? await loadImage(props.flavour) : null
@@ -192,14 +194,14 @@ createPlatform(scene)
 
   const camera = new THREE.PerspectiveCamera(
     75,
-    viewer.clientWidth / viewer.clientHeight,
+    viewer.value.clientWidth / viewer.value.clientHeight,
     0.1,
     1000
   )
   camera.position.set(0, 0, 40)
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true })
-  renderer.setSize(viewer.clientWidth, viewer.clientHeight)
+  renderer.setSize(viewer.value.clientWidth, viewer.value.clientHeight)
 
   const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 1)
   scene.add(hemi)
@@ -266,9 +268,9 @@ createPlatform(scene)
   render()
 
   window.addEventListener("resize", () => {
-    camera.aspect = viewer.clientWidth / viewer.clientHeight
+    camera.aspect = viewer.value.clientWidth / container.clientHeight
     camera.updateProjectionMatrix()
-    renderer.setSize(viewer.clientWidth, viewer.clientHeight)
+    renderer.setSize(viewer.value.clientWidth, container.clientHeight)
   })
 })
 
