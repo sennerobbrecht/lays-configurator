@@ -1,7 +1,3 @@
-# to do 
-
-
-# environment van de chipszak
-# vote verder afwerken
+https://lays-configurator-1.onrender.com
 
 
