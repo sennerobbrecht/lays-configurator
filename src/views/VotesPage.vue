@@ -1,8 +1,8 @@
 <template>
   <div class="vote-container">
-  <button class="back-home" @click="$router.push('/dashboard')">
-  ← Back to Home
-</button>
+    <button class="back-home" @click="$router.push('/dashboard')">
+      ← Back to Home
+    </button>
 
     <h1>Vote For Your Favorite Lays Bag</h1>
 
@@ -21,6 +21,8 @@
 
         <h2>{{ bag.name }}</h2>
         <p class="user">By {{ bag.user }}</p>
+
+        <p class="votes">Votes: {{ voteCounts[bag._id] ?? 0 }}</p>
 
         <button
           class="vote-btn"
@@ -57,25 +59,38 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue"
+import { ref, onMounted, onUnmounted } from "vue"
 import axios from "axios"
+import { io } from "socket.io-client"
 import BagPreview from "../components/BagPreview.vue"
 
 const bags = ref([])
 const votes = ref({})
+const voteCounts = ref({})
 const activeBag = ref(null)
+const votedBagId = ref(null)
+
+const socket = io("https://lays-api-1.onrender.com")
+
+socket.on("vote-updated", data => {
+  voteCounts.value[data.bagId] = data.count
+})
 
 async function loadBags() {
   const res = await axios.get("https://lays-api-1.onrender.com/api/v1/bag")
   bags.value = res.data
-  loadLocalVotes()
+  loadLocalVote()
+  bags.value.forEach(bag => {
+    voteCounts.value[bag._id] = bag.votes || 0
+  })
 }
 
-function loadLocalVotes() {
+function loadLocalVote() {
   const email = localStorage.getItem("userEmail")
+  const storedBagId = localStorage.getItem(`voted_${email}`)
+  votedBagId.value = storedBagId
   bags.value.forEach(bag => {
-    votes.value[bag._id] =
-      localStorage.getItem(`voted_${email}_${bag._id}`) === "true"
+    votes.value[bag._id] = bag._id === storedBagId
   })
 }
 
@@ -92,36 +107,56 @@ async function toggleVote(bagId) {
     return
   }
 
-  if (!votes.value[bagId]) {
-    try {
-      await axios.post(
-        `https://lays-api-1.onrender.com/api/v1/vote/${bagId}`,
-        { user: email, bag: bagId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
-      votes.value[bagId] = true
-      localStorage.setItem(`voted_${email}_${bagId}`, "true")
-    } catch {
-      alert("Voting failed.")
-    }
-  } else {
+  if (votedBagId.value === bagId) {
     try {
       await axios.delete(
         `https://lays-api-1.onrender.com/api/v1/vote/${bagId}`,
         {
-          data: { user: email, bag: bagId },
           headers: { Authorization: `Bearer ${token}` }
         }
       )
       votes.value[bagId] = false
-      localStorage.removeItem(`voted_${email}_${bagId}`)
+      votedBagId.value = null
+      localStorage.removeItem(`voted_${email}`)
     } catch {
       alert("Unvote failed.")
     }
+    return
+  }
+
+  if (votedBagId.value) {
+    try {
+      await axios.delete(
+        `https://lays-api-1.onrender.com/api/v1/vote/${votedBagId.value}`,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      )
+      votes.value[votedBagId.value] = false
+    } catch {
+      return
+    }
+  }
+
+  try {
+    await axios.post(
+      `https://lays-api-1.onrender.com/api/v1/vote/${bagId}`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+    votes.value[bagId] = true
+    votedBagId.value = bagId
+    localStorage.setItem(`voted_${email}`, bagId)
+  } catch {
+    alert("Voting failed.")
   }
 }
 
 onMounted(loadBags)
+
+onUnmounted(() => {
+  socket.disconnect()
+})
 </script>
 
 <style scoped>
@@ -179,6 +214,11 @@ onMounted(loadBags)
   margin-top: -5px;
 }
 
+.votes {
+  font-weight: bold;
+  margin: 6px 0;
+}
+
 .overlay {
   position: fixed;
   inset: 0;
@@ -227,15 +267,6 @@ onMounted(loadBags)
   cursor: pointer;
 }
 
-.overlay-preview :deep(.viewer-wrapper) {
-  width: 100%;
-  height: 100%;
-}
-
-.overlay-preview :deep(canvas) {
-  width: 100%;
-  height: 100%;
-}
 .back-home {
   position: fixed;
   top: 20px;
@@ -249,9 +280,4 @@ onMounted(loadBags)
   box-shadow: 0 6px 16px rgba(0,0,0,0.15);
   z-index: 1000;
 }
-
-.back-home:hover {
-  background: #f1f1f1;
-}
-
 </style>
