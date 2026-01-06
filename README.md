@@ -1,3 +1,3 @@
-https://lays-configurator-1.onrender.com
+https://lays-configurator1.onrender.com/
 
 
