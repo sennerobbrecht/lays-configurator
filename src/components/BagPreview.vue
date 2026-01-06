@@ -1,5 +1,5 @@
 <template>
-  <div  ref="viewer" class="viewer-wrapper">
+  <div ref="viewer" class="viewer-wrapper">
     <canvas ref="canvas3d" class="three-canvas"></canvas>
   </div>
 </template>
@@ -8,12 +8,11 @@
 import { onMounted, ref, watch } from "vue"
 import * as THREE from "three"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
-import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js"
 import logoSrc from "@/assets/lays_logo_transparent.png"
-import { createEnvironment } from "@/three/CreateEnvironment"
 import { createPlatform } from "@/three/CreatePlatform"
 
 const viewer = ref(null)
+const canvas3d = ref(null)
 
 const props = defineProps({
   color: String,
@@ -24,7 +23,6 @@ const props = defineProps({
   pattern: String
 })
 
-const canvas3d = ref(null)
 let model = null
 let laysLogo = null
 
@@ -176,39 +174,40 @@ onMounted(async () => {
   const canvas = canvas3d.value
   const container = viewer.value
 
-
   laysLogo = await loadImage(logoSrc)
   let flavourImg = props.flavour ? await loadImage(props.flavour) : null
 
   const scene = new THREE.Scene()
-  createEnvironment(scene)
-createPlatform(scene)
+  scene.background = new THREE.Color(0xf4f4f4)
 
-  scene.background = new THREE.Color(0xf0f0f0)
-
-  const envLoader = new RGBELoader()
-  envLoader.load("/hdr/studio.hdr", hdr => {
-    hdr.mapping = THREE.EquirectangularReflectionMapping
-    scene.environment = hdr
-  })
+  createPlatform(scene)
 
   const camera = new THREE.PerspectiveCamera(
     75,
-    viewer.value.clientWidth / viewer.value.clientHeight,
+    container.clientWidth / container.clientHeight,
     0.1,
     1000
   )
   camera.position.set(0, 0, 40)
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true })
-  renderer.setSize(viewer.value.clientWidth, viewer.value.clientHeight)
+  renderer.setSize(container.clientWidth, container.clientHeight)
+  renderer.setPixelRatio(window.devicePixelRatio)
 
-  const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 1)
-  scene.add(hemi)
+  const ambient = new THREE.AmbientLight(0xffffff, 0.6)
+  scene.add(ambient)
 
-  const dl = new THREE.DirectionalLight(0xffffff, 1)
-  dl.position.set(5, 10, 7)
-  scene.add(dl)
+  const key = new THREE.DirectionalLight(0xffffff, 1.1)
+  key.position.set(5, 10, 8)
+  scene.add(key)
+
+  const fill = new THREE.DirectionalLight(0xffffff, 0.6)
+  fill.position.set(-5, 4, 6)
+  scene.add(fill)
+
+  const rim = new THREE.DirectionalLight(0xffffff, 0.4)
+  rim.position.set(0, 6, -8)
+  scene.add(rim)
 
   const loader = new GLTFLoader()
   loader.load("/models/punga_chips_export.glb", async gltf => {
@@ -233,8 +232,7 @@ createPlatform(scene)
         child.material = new THREE.MeshStandardMaterial({
           map: texture,
           roughness: mat.roughness,
-          metalness: mat.metalness,
-          envMapIntensity: 1.1
+          metalness: mat.metalness
         })
       }
     })
@@ -268,9 +266,9 @@ createPlatform(scene)
   render()
 
   window.addEventListener("resize", () => {
-    camera.aspect = viewer.value.clientWidth / container.clientHeight
+    camera.aspect = container.clientWidth / container.clientHeight
     camera.updateProjectionMatrix()
-    renderer.setSize(viewer.value.clientWidth, container.clientHeight)
+    renderer.setSize(container.clientWidth, container.clientHeight)
   })
 })
 
@@ -301,7 +299,6 @@ watch(
         child.material.map = texture
         child.material.roughness = mat.roughness
         child.material.metalness = mat.metalness
-        child.material.envMapIntensity = 1.1
         child.material.needsUpdate = true
       }
     })
@@ -310,8 +307,6 @@ watch(
 </script>
 
 <style scoped>
-
-
 .viewer-wrapper {
   width: 100%;
   height: 100%;
@@ -322,5 +317,4 @@ watch(
   height: 100%;
   display: block;
 }
-
 </style>
